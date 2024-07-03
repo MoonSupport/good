@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>love_wins_all</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/default.css" />
+    <style>
+      #dress_loop {
+        transition: transform 6s ease;
+      }
+
+      #poster {
+        transition: opacity 4s;
+      }
+
+      
+    </style>
+  </head>
+
+  
+  <body style="background-color:#0e0e0e; width: 100vw">
+    <div
+    style="
+          display: flex;
+    justify-content: center;
+    align-items: center;
+
+      position: fixed; width: 100%; height: 100%;">
+      <canvas style="width: 150px; height: 76px;" width="1500px" height="760px" id="container"></canvas>
+    </div>
+
+    <div id="dress_loop" style="position: absolute;
+    visibility: hidden;
+    z-index: 1;
+    width: 100vw;
+    display: flex;
+    justify-content: center;">
+      <img style="    width: 150px;
+      position: absolute;
+      top: 50vh;
+      transform: translateY(-50%);" src="../imgs/love_wins_all/loop.gif"></img>
+    </div>
+
+    <div style=" width: 100vw; height: 100vh"></div>
+    <div style=" width: 100vw; height: 100vh"></div>
+    <div style=" width: 100vw; height: 100vh"></div>
+    <div id="dummy" style="position: absolute;
+    top: -9999px; width: 100vw; height: 100vh; justify-content: center; align-items: end; display: flex;">
+    <img width="390px" src="../imgs/love_wins_all/dummy.png" /></img>
+    <div id="poster" style="
+    padding: 20px;
+    width: 390px;
+    height: 100vh;
+    position: absolute;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    ">
+      <img  src="../imgs/love_wins_all/poster.png"></img>
+    </div>
+  </div>
+
+
+<button id="go_bottom" class="scroll-to-bottom" style="position: fixed;
+bottom: 20px;
+right: 20px;
+z-index: 1000;
+border-radius: 50%;
+cursor: pointer;
+fill: white;
+opacity: 0.8;
+">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48"><path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8.009 8.009 0 0 1-8 8z"/><path d="M12 12.586 8.707 9.293l-1.414 1.414L12 15.414l4.707-4.707-1.414-1.414L12 12.586z"/></svg>
+</button>
+
+
+    <script src="../dist/index.js"></script>
+  </body>
+</html>
