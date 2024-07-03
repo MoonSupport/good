@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bottom Sheet UI</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+      }
+
+      .dimmed {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+        z-index: 10;
+      }
+
+      .bottom-sheet {
+            position: fixed;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            background: white;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            transition: bottom 0.3s ease;
+            z-index: 20;
+        }
+
+        .dimmed.active,
+        .bottom-sheet.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .bottom-sheet.active {
+            bottom: 0;
+        }
+
+        .comments {
+            margin-top: 20px;
+        }
+
+        .comment {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+        }
+
+        .comment:last-child {
+            border-bottom: none;
+        }
+
+        .comment-author {
+            font-weight: bold;
+        }
+
+        .comment-text {
+            margin: 5px 0 0 0;
+        }
+
+      #phone {
+            transition: filter 0.3s ease;
+      }
+
+      .darkness { 
+        filter: brightness(0.6);
+      }
+
+      .txt {
+        position: absolute;
+        position: absolute;
+    width: max-content;
+    top: 178px;
+    left: 0px;
+    font-weight: bold;
+    border-radius: 5px;
+    border: 1px solid #484848;
+    padding: 5px 10px;
+    background: #484848;
+    color: white;
+    animation: shake 0.1s infinite;
+    transition: opacity 0.3s ease,
+
+      }
+
+      .txt:after {
+        border-top: 10px solid #484848;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 0px solid transparent;
+    content: "";
+    position: absolute;
+    top: 30px;
+    left: 9px;
+    
+}
+
+.hide {
+    opacity: 0;
+}
+
+      @keyframes shake {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(5px);
+            }
+        }
+
+      .dx {
+        animation: shake 0.1s infinite;
+    }
+
+    </style>
+  </head>
+  <body>
+    
+    <div style="    position: relative;
+    display: flex;
+    justify-content: center;">
+        <button id="openSheet" 
+        style="
+    width: 400px;
+    height: 300px;
+    background: none;
+    border-radius: 10%;
+    position: absolute;">Open</button>
+<div id="txt" class="txt hide">형씨 좋은말로 할 때 다시 덮어.</div>
+        <img id="chick" style="position: absolute;
+    top: 220px;" width="90px" src="../imgs/chick/chick.png"></img>
+            <img id="phone" class="darkness" style="position: absolute;
+    top: 220px; z-index: 12;" width="90px" src="../imgs/chick/phone.png"></img>
+    <div id="light" style="
+    position: absolute;
+    width: 30px;
+    height: 20px;
+    background: white;
+    top: 233px;
+    z-index: 11;
+    transform: rotate(-23deg);
+    opacity: 0.3;
+">
+    
+</div>
+    </div>
+    <div class="dimmed active" id="dimmed"></div>
+    
+    <div  style="    overflow: scroll;"class="bottom-sheet active" id="bottomSheet">
+        <div style="    width: 100%;
+        display: flex;
+        justify-content: end;">
+        <button style="    border: none;
+        background: none;
+        font-size: 24px;" id="closeSheet">X</button>
+        </div>
+        <div class="comments">
+            <div class="comment">
+                <div class="comment-author">그냥이</div>
+                <div class="comment-text">안녕하세오. 파티구해오.</div>
+            </div>
+            <div class="comment">
+                <div class="comment-author">궁금아징</div>
+                <div class="comment-text">몰라 안 궁금해</div>
+            </div>
+            <div class="comment">
+                <div class="comment-author">화농그</div>
+                <div class="comment-text">솔직히 해커톤 좀 귀찮음 ㅋㅋ</div>
+            </div>
+            <div class="comment">
+                <div class="comment-author">콜라</div>
+                <div class="comment-text">집 가고 싶다.</div>
+            </div>
+            <div class="comment">
+                <div class="comment-author">화농그</div>
+                <div class="comment-text">나도 집 가고 싶다.</div>
+            </div>
+            <div class="comment">
+                <div class="comment-author">그냥이</div>
+                <div class="comment-text">ㅇㅈ</div>
+            </div>
+            <div class="comment">
+                <div class="comment-author">궁금아징</div>
+                <div class="comment-text">ㅇ ㅇㅈ</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+      const openSheetButton = document.getElementById("openSheet");
+      const closeSheetButton = document.getElementById("closeSheet");
+      const dimmed = document.getElementById("dimmed");
+      const bottomSheet = document.getElementById("bottomSheet");
+      const phone = document.getElementById("phone");
+      const chick = document.getElementById('chick')
+      const light = document.getElementById('light')
+      const txt = document.getElementById('txt')
+
+        bottomSheet.style.height = `${window.innerHeight - 300 + 40}px`
+
+      function makeRandomColor() {
+        const r = Math.floor(Math.random() * 255);
+        const g = Math.floor(Math.random() * 255);
+        const b = Math.floor(Math.random() * 255);
+        return `rgb(${r},${g},${b})`;
+    }
+
+      let id = 0
+
+    id = setInterval(()=> {
+            light.style.background = makeRandomColor()
+        }, 100)
+
+      openSheetButton.addEventListener("click", () => {
+        dimmed.classList.add("active");
+        bottomSheet.classList.add("active");
+        phone.classList.add('darkness')
+
+        id = setInterval(()=> {
+            light.style.background = makeRandomColor()
+        }, 100)
+
+        setTimeout(()=>{
+            phone.classList.remove('dx')
+            chick.classList.remove('dx')
+            txt.classList.add('hide')
+
+        },400)
+      });
+
+      const closeSheet = () => {
+        clearInterval(id)
+        dimmed.classList.remove("active");
+        bottomSheet.classList.remove("active");
+        phone.classList.remove('darkness')
+        setTimeout(()=>{
+            phone.classList.add('dx')
+            chick.classList.add('dx')
+            txt.classList.remove('hide')
+
+        },400)
+ 
+        light.style.background = 'none'
+      };
+
+      closeSheetButton.addEventListener("click", closeSheet);
+      dimmed.addEventListener("click", closeSheet);
+    </script>
+  </body>
+</html>

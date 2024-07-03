@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>multi_interval</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/default.css" />
+  </head>
+
+  <body id="drag">
+    <div
+      id="title"
+      style="
+        visibility: hidden;
+        display: flex;
+        margin-top: 20px;
+        align-items: center;
+        flex-direction: column;
+      "
+    ></div>
+
+    <div stlye="100%">
+      <canvas width="500px" height="400px" id="container"></canvas>
+    </div>
+
+    <button
+      style="
+        width: calc(100% - 40px);
+        border: 2px solid;
+        border-radius: 10px;
+        height: 40px;
+        margin: 0 20px;
+      "
+    >
+      쏟기
+    </button>
+    <script src="../dist/index.js"></script>
+  </body>
+</html>

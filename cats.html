@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>cats</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/default.css" />
+    <style>
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(2px);
+            animation: fadeIn 1s forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+    .rotate {
+            display: inline-block;
+            animation: rotate 2s linear infinite;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .light {
+            border-color: yellow !important;
+        }
+
+        .dark-bg {
+          background-color: black;
+        }
+        
+
+    </style>
+  </head>
+  <body>
+
+    <div id="message" style="    font-size: 18px;
+    position: absolute;
+    left: 20px;
+    top: 50%;">
+        <p style="opacity: 0;">상 고양이 특</p>
+        <p style="opacity: 0;">내 갈길 감</p>
+
+    </div>
+
+    <div style="    height: 100vh;
+    padding-top: 20px;
+    ">
+      <div style="    display: flex;
+      justify-content: end;
+      margin-right: 20px;">
+        <div style="position: relative; width: 62px;     cursor: pointer;">
+            <svg class="heart" style="position: relative; z-index:1;" viewBox="0 0 24 24" style="position: relative" width="60" height="60" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
+                <path class="empty" d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402m5.726-20.583c-2.203 0-4.446 1.042-5.726 3.238-1.285-2.206-3.522-3.248-5.719-3.248-3.183 0-6.281 2.187-6.281 6.191 0 4.661 5.571 9.429 12 15.809 6.43-6.38 12-11.148 12-15.809 0-4.011-3.095-6.181-6.274-6.181" fill="#F43D3D"/>
+                  <path class="filled" style="display: none" d="M 17.726 1.0100000000000016 C 15.523 1.0100000000000016 13.28 2.0520000000000014 12 4.248000000000001 C 10.715 2.042000000000001 8.478 1.0000000000000009 6.281 1.0000000000000009 C 3.098 1.0000000000000009 0 3.1870000000000007 0 7.191000000000001 C 0 11.852 5.571 16.62 12 23 C 18.43 16.62 24 11.852 24 7.191000000000001 C 24 3.1800000000000006 20.905 1.0100000000000007 17.726 1.0100000000000007" fill="#F43D3D"/>
+            </svg>
+
+
+
+              <img id="heartcat" style="
+              visibility: hidden;
+                  width: 62px;
+        height: 62px;
+        top: -1px;
+        left: -2px;
+        position: absolute;
+              " src="../imgs/cats/heart.png"></img>
+                      <p style="text-align: center; line-height: 0.8;">1.4k</p>
+
+
+        </div>
+        <div id="darkmode" style="
+            cursor: pointer;
+        border: 3px solid black;
+        border-radius: 100%;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-left: 10px;
+    ">
+          <svg style="position: relative" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 10.999c1.437.438 2.562 1.564 2.999 3.001.44-1.437 1.565-2.562 3.001-3-1.436-.439-2.561-1.563-3.001-3-.437 1.436-1.562 2.561-2.999 2.999zm8.001.001c.958.293 1.707 1.042 2 2.001.291-.959 1.042-1.709 1.999-2.001-.957-.292-1.707-1.042-2-2-.293.958-1.042 1.708-1.999 2zm-1-9c-.437 1.437-1.563 2.562-2.998 3.001 1.438.44 2.561 1.564 3.001 3.002.437-1.438 1.563-2.563 2.996-3.002-1.433-.437-2.559-1.564-2.999-3.001zm-7.001 22c-6.617 0-12-5.383-12-12s5.383-12 12-12c1.894 0 3.63.497 5.37 1.179-2.948.504-9.37 3.266-9.37 10.821 0 7.454 5.917 10.208 9.37 10.821-1.5.846-3.476 1.179-5.37 1.179z"/></svg>
+        </div>
+      </div>
+      <canvas
+      style="
+            cursor: grab;
+          bottom: 52px;
+          position: absolute;
+          left: 0px;
+      "
+      width="150px"
+      height="150px"
+      draggable="true"
+      id="container"
+    ></canvas>
+    <img id="darkcat"    style="
+    z-index: 1;
+    display: none;
+    bottom: 52px;
+    position: absolute;
+    left: 0px;
+    width:150px;
+      height:150px;
+" src="../imgs/cats/dark.png"></img>
+      <div id="tower" style="top: 100px;
+      position: absolute;
+      width: 200px;
+      height: 450px;
+      right: 0;">
+
+        <img style="    position: absolute;
+        right: 55px;
+        width: 100px;" src="../imgs/cats/empty.png"></img>
+      <img style="
+              top: 92px;
+
+      position: absolute;
+      width: 200px;
+      " src="../imgs/cats/tower.png"></img>
+      </div>
+     
+    </div>
+    <div style="
+        position: absolute;
+    bottom: 20px;
+    width: 100%;
+    padding: 0 20px;"><button style="    width: 100%;
+    border: 3px solid black;
+    border-radius: 10px;
+    height: 40px;
+"></button></div>
+    <script src="../dist/index.js"></script>
+  </body>
+</html>
