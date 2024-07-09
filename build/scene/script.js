@@ -1,0 +1,312 @@
+document.addEventListener("DOMContentLoaded", () => {
+  const editor = document.getElementById("editor");
+  const mask = document.getElementById("mask");
+  const text_mode = document.getElementById("text_mode");
+  const pointer_mode = document.getElementById("pointer_mode");
+  const toolbarEle = document.getElementById("toolbar");
+  const font_size = document.getElementById("font_size");
+  const copy = document.getElementById("copy");
+
+  const datas = [];
+
+  copy.addEventListener("click", () => {
+    const boxes = document.querySelectorAll(".edit-box");
+    boxes.forEach((box) => {
+      datas.push({
+        innerText: box.innerText,
+        fontSize: Number(box.style.fontSize.slice(0, -2)),
+        left: Number(box.parentElement.style.left.slice(0, -2)),
+        top: Number(box.parentElement.style.top.slice(0, -2)),
+      });
+    });
+
+    console.log("JSON.stringify(boxes):: ", JSON.stringify(datas));
+
+    copyUrlWithQueryString("r", JSON.stringify(datas));
+  });
+
+  let selectedBox = null;
+  let isEditing = false;
+  let isMasking = false;
+
+  const currentUrl = new URL(window.location.href);
+
+  const init = JSON.parse(decodeURIComponent(currentUrl.searchParams.get("r")));
+  console.log(init);
+  init?.map((v) => {
+    createEditBox(v.left, v.top, v.innerText, v.fontSize);
+  });
+
+  font_size.addEventListener("change", (e) => {
+    console.log("selectedBox::", selectedBox);
+    selectedBox.style.fontSize = `${e.target.value}px`;
+  });
+
+  text_mode.addEventListener("click", () => {
+    text_mode.classList.add("hidden");
+    pointer_mode.classList.remove("hidden");
+
+    const boxes = document.querySelectorAll(".edit-box");
+    boxes.forEach((box) => {
+      box.contentEditable = false;
+    });
+    toolbarEle.style.left = `-999px`;
+    toolbarEle.classList.add("hidden");
+  });
+
+  pointer_mode.addEventListener("click", () => {
+    pointer_mode.classList.add("hidden");
+    text_mode.classList.remove("hidden");
+    const boxes = document.querySelectorAll(".edit-box");
+
+    boxes.forEach((box) => {
+      box.contentEditable = true;
+    });
+    toolbarEle.classList.remove("hidden");
+  });
+
+  toolbarEle.style.opacity = 1;
+  toolbarEle.style.visibility = "visible";
+
+  mask.addEventListener("click", () => {
+    if (mask.classList.contains("mask")) {
+      const boxes = document.querySelectorAll(".edit-box");
+      boxes.forEach((box) => {
+        box.innerText = box.dataset.origin;
+      });
+      mask.classList.remove("mask");
+      isMasking = false;
+    } else {
+      mask.classList.add("mask");
+      isMasking = true;
+      const boxes = document.querySelectorAll(".edit-box");
+      boxes.forEach((box) => {
+        box.dataset.origin = box.innerText;
+
+        box.innerText = box.innerText.replace(/\S/g, "*");
+      });
+    }
+  });
+
+  editor.addEventListener("click", (event) => {
+    if (!isEditing) {
+      createEditBox(event.pageX, event.pageY);
+    }
+  });
+
+  function createEditBox(x, y, v, s) {
+    const container = document.createElement("div");
+    const box = document.createElement("div");
+
+    container.classList.add("edit-container");
+    box.classList.add("edit-box");
+
+    if (v) box.innerText = v;
+
+    if (s) box.style.fontSize = `${s}px`;
+    else box.style.fontSize = `24px`;
+
+    box.contentEditable = true;
+    container.style.left = `${x}px`;
+    container.style.top = `${y}px`;
+
+    toolbarEle.style.left = `${x}px`;
+    toolbarEle.style.top = `${y - 54}px`;
+
+    box.addEventListener("click", (event) => {
+      event.stopPropagation();
+      selectBox(box);
+    });
+
+    box.addEventListener("focusout", (event) => {
+      if (!event.target.innerText) {
+        editor.removeChild(event.target.parentElement);
+      }
+    });
+
+    box.addEventListener("input", (event) => {
+      if (isMasking) {
+        event.target.dataset.origin = event.target.innerText;
+
+        // 입력된 길이만큼 *로 대체
+        // const maskedValue = originalValue.replace(/\S/g, "*");
+        // event.target.innerText = maskedValue;
+      }
+    });
+
+    container.appendChild(box);
+    editor.appendChild(container);
+    box.focus();
+    selectBox(box);
+  }
+
+  function selectBox(box) {
+    if (selectedBox) {
+      selectedBox.classList.remove("selected");
+    }
+    selectedBox = box;
+
+    selectedBox.classList.add("selected");
+    isEditing = true;
+
+    const x = box.parentElement.style.left;
+    const y = box.parentElement.style.top;
+
+    toolbarEle.style.left = `${x}`;
+    toolbarEle.style.top = `${Number(y.slice(0, -2)) - 54}px`;
+
+    console.log("toolbarEle::", toolbarEle);
+    console.log("toolbarEle.style.left::", toolbarEle.style.left);
+  }
+
+  document.addEventListener("click", (event) => {
+    if (isEditing && !event.target.closest(".edit-box")) {
+      if (selectedBox) {
+        selectedBox.classList.remove("selected");
+        // selectedBox = null;
+      }
+      isEditing = false;
+    }
+  });
+
+  editor.addEventListener("mousedown", (event) => {
+    let box = event.target.parentElement;
+    let offsetX = event.clientX - box.getBoundingClientRect().left;
+    let offsetY = event.clientY - box.getBoundingClientRect().top;
+
+    function onMouseMove(event) {
+      box.style.left = `${event.clientX - offsetX}px`;
+      box.style.top = `${event.clientY - offsetY}px`;
+
+      toolbarEle.style.left = `${event.clientX - offsetX}px`;
+      toolbarEle.style.top = `${event.clientY - offsetY - 54}px`;
+    }
+
+    function onMouseUp() {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    }
+
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+  });
+
+  editor.addEventListener("touchstart", (event) => {
+    console.log("touch_start");
+    let box = event.target.parentElement;
+    const touch = event.touches[0];
+    let offsetX = touch.clientX - box.getBoundingClientRect().left;
+    let offsetY = touch.clientY - box.getBoundingClientRect().top;
+    box.style.cursor = "grabbing";
+
+    function onMouseMove(event) {
+      console.log("touch_move");
+
+      const touch = event.touches[0];
+      touch.target.parentElement.style.left = `${touch.clientX - offsetX}px`;
+      touch.target.parentElement.style.top = `${touch.clientY - offsetY}px`;
+
+      toolbarEle.style.left = `${touch.clientX - offsetX}px`;
+      toolbarEle.style.top = `${touch.clientY - offsetY - 54}px`;
+    }
+
+    const onTouchEnd = () => {
+      console.log("touch_end");
+
+      box.style.cursor = "grab";
+    };
+
+    document.addEventListener("touchmove", onMouseMove);
+    document.addEventListener("touchend", onTouchEnd);
+  });
+
+  function copyUrlWithQueryString(key, value) {
+    // 현재 URL 가져오기
+    const currentUrl = new URL(window.location.href);
+
+    // 쿼리 스트링 추가 (예: ?key=value)
+    currentUrl.searchParams.set(key, value);
+
+    // 수정된 URL 문자열
+    const newUrl = currentUrl.toString();
+
+    // 클립보드에 복사
+    navigator.clipboard
+      .writeText(newUrl)
+      .then(() => {
+        alert("URL이 클립보드에 복사되었습니다: " + newUrl);
+      })
+      .catch((err) => {
+        console.error("클립보드 복사 실패: ", err);
+      });
+  }
+
+  // Shooting Star logic
+  //   var entities = [];
+
+  //   function createShootingStarLogic() {
+  //     function ShootingStar() {
+  //       this.reset();
+  //     }
+
+  //     ShootingStar.prototype.reset = function () {
+  //       this.x = Math.random() * width;
+  //       this.y = 0;
+  //       this.len = Math.random() * 80 + 10;
+  //       this.speed = Math.random() + 2;
+  //       this.size = Math.random() * 1 + 0.01;
+  //       // this is used so the shooting stars arent constant
+  //       this.waitTime = new Date().getTime() + Math.random() * 3000 + 500;
+  //       this.active = false;
+  //     };
+
+  //     ShootingStar.prototype.update = function () {
+  //       if (this.active) {
+  //         this.x -= this.speed;
+  //         this.y += this.speed;
+  //         if (this.x < 0 || this.y >= height) {
+  //           this.reset();
+  //         } else {
+  //           bgCtx.lineWidth = this.size;
+  //           bgCtx.beginPath();
+  //           bgCtx.moveTo(this.x, this.y);
+  //           bgCtx.lineTo(this.x + this.len, this.y - this.len);
+  //           bgCtx.stroke();
+  //         }
+  //       } else {
+  //         if (this.waitTime < new Date().getTime()) {
+  //           this.active = true;
+  //         }
+  //       }
+  //     };
+
+  //     return ShootingStar;
+  //   }
+
+  //   var ShootingStar = createShootingStarLogic();
+
+  //   // Add 2 shooting stars that just cycle.
+  //   entities.push(new ShootingStar());
+  //   entities.push(new ShootingStar());
+
+  //   function animate() {
+  //     var gradient = bgCtx.createLinearGradient(0, 0, 0, height);
+  //     gradient.addColorStop(0, "rgba(36, 25, 111, 1)");
+  //     gradient.addColorStop(1, "rgba(0, 0, 0, 1)");
+
+  //     // Set the fill style to the gradient
+  //     bgCtx.fillStyle = gradient;
+
+  //     bgCtx.fillRect(0, 0, width, height);
+  //     bgCtx.strokeStyle = "#ffffff";
+
+  //     var entLen = entities.length;
+
+  //     while (entLen--) {
+  //       entities[entLen].update();
+  //     }
+
+  //     requestAnimationFrame(animate);
+  //   }
+  //   animate();
+});
