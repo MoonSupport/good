@@ -6,6 +6,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const toolbarEle = document.getElementById("toolbar");
   const font_size = document.getElementById("font_size");
   const copy = document.getElementById("copy");
+  const mask_svg = document.getElementById("mask-svg");
+  const tooltip = document.getElementById("tooltip");
+  let mode = "text";
+
+  mask_svg.style.fill = "gold";
+  function calculateB(px) {
+    // 계수 정의
+    const a = 0.5667;
+    const b = -0.4;
+
+    // B 값 계산
+    const B = a * px + b;
+
+    return B;
+  }
 
   const datas = [];
 
@@ -13,38 +28,46 @@ document.addEventListener("DOMContentLoaded", () => {
     const boxes = document.querySelectorAll(".edit-box");
     boxes.forEach((box) => {
       datas.push({
-        innerText: box.innerText,
+        innerText: box.dataset.origin,
         fontSize: Number(box.style.fontSize.slice(0, -2)),
         left: Number(box.parentElement.style.left.slice(0, -2)),
         top: Number(box.parentElement.style.top.slice(0, -2)),
       });
     });
 
-    console.log("JSON.stringify(boxes):: ", JSON.stringify(datas));
-
     copyUrlWithQueryString("r", JSON.stringify(datas));
   });
 
   let selectedBox = null;
   let isEditing = false;
-  let isMasking = false;
+  let isMasking = true;
 
   const currentUrl = new URL(window.location.href);
+  console.log("hit it?");
+  if (currentUrl.searchParams.has("r")) {
+    const init = JSON.parse(
+      decodeURIComponent(currentUrl.searchParams.get("r"))
+    );
 
-  const init = JSON.parse(decodeURIComponent(currentUrl.searchParams.get("r")));
-  console.log(init);
-  init?.map((v) => {
-    createEditBox(v.left, v.top, v.innerText, v.fontSize);
-  });
+    tooltip.style.visibility = `visible`;
+
+    init?.map((v) => {
+      createEditBox(v.left, v.top, v.innerText, v.fontSize, false);
+    });
+
+    setTimeout(() => {
+      tooltip.style.visibility = `hidden`;
+    }, 3000);
+  }
 
   font_size.addEventListener("change", (e) => {
-    console.log("selectedBox::", selectedBox);
     selectedBox.style.fontSize = `${e.target.value}px`;
   });
 
   text_mode.addEventListener("click", () => {
     text_mode.classList.add("hidden");
     pointer_mode.classList.remove("hidden");
+    mode = "pointer";
 
     const boxes = document.querySelectorAll(".edit-box");
     boxes.forEach((box) => {
@@ -58,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
     pointer_mode.classList.add("hidden");
     text_mode.classList.remove("hidden");
     const boxes = document.querySelectorAll(".edit-box");
-
+    mode = "text";
     boxes.forEach((box) => {
       box.contentEditable = true;
     });
@@ -73,28 +96,28 @@ document.addEventListener("DOMContentLoaded", () => {
       const boxes = document.querySelectorAll(".edit-box");
       boxes.forEach((box) => {
         box.innerText = box.dataset.origin;
+
+        box.style.letterSpacing = `${1}px`;
+        const prevFontSize = box.style.fontSize;
+
+        box.style.fontSize = `${prevFontSize / 2}px`;
       });
       mask.classList.remove("mask");
       isMasking = false;
+      mask_svg.style.fill = "darkgoldenrod";
     } else {
-      mask.classList.add("mask");
-      isMasking = true;
-      const boxes = document.querySelectorAll(".edit-box");
-      boxes.forEach((box) => {
-        box.dataset.origin = box.innerText;
-
-        box.innerText = box.innerText.replace(/\S/g, "*");
-      });
+      isMasking = masking(mask, isMasking, isAlphabet, calculateB);
+      mask_svg.style.fill = "gold";
     }
   });
 
   editor.addEventListener("click", (event) => {
-    if (!isEditing) {
-      createEditBox(event.pageX, event.pageY);
+    if (!isEditing && mode === "text") {
+      createEditBox(event.pageX, event.pageY, "", font_size.value);
     }
   });
 
-  function createEditBox(x, y, v, s) {
+  function createEditBox(x, y, v, s, tt = true) {
     const container = document.createElement("div");
     const box = document.createElement("div");
 
@@ -107,11 +130,14 @@ document.addEventListener("DOMContentLoaded", () => {
     else box.style.fontSize = `24px`;
 
     box.contentEditable = true;
+
     container.style.left = `${x}px`;
     container.style.top = `${y}px`;
 
-    toolbarEle.style.left = `${x}px`;
-    toolbarEle.style.top = `${y - 54}px`;
+    if (tt) {
+      toolbarEle.style.left = `${x}px`;
+      toolbarEle.style.top = `${y - 54}px`;
+    }
 
     box.addEventListener("click", (event) => {
       event.stopPropagation();
@@ -137,10 +163,10 @@ document.addEventListener("DOMContentLoaded", () => {
     container.appendChild(box);
     editor.appendChild(container);
     box.focus();
-    selectBox(box);
+    selectBox(box, tt);
   }
 
-  function selectBox(box) {
+  function selectBox(box, tt) {
     if (selectedBox) {
       selectedBox.classList.remove("selected");
     }
@@ -152,11 +178,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const x = box.parentElement.style.left;
     const y = box.parentElement.style.top;
 
-    toolbarEle.style.left = `${x}`;
-    toolbarEle.style.top = `${Number(y.slice(0, -2)) - 54}px`;
-
-    console.log("toolbarEle::", toolbarEle);
-    console.log("toolbarEle.style.left::", toolbarEle.style.left);
+    if (tt) {
+      toolbarEle.style.left = `${x}`;
+      toolbarEle.style.top = `${Number(y.slice(0, -2)) - 54}px`;
+    }
   }
 
   document.addEventListener("click", (event) => {
@@ -171,6 +196,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   editor.addEventListener("mousedown", (event) => {
     let box = event.target.parentElement;
+
+    if (!box.classList.contains("edit-container")) return;
+
     let offsetX = event.clientX - box.getBoundingClientRect().left;
     let offsetY = event.clientY - box.getBoundingClientRect().top;
 
@@ -192,15 +220,17 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   editor.addEventListener("touchstart", (event) => {
-    console.log("touch_start");
     let box = event.target.parentElement;
+    if (!box.classList.contains("edit-container")) return;
+
+    console.log("box::", box);
     const touch = event.touches[0];
     let offsetX = touch.clientX - box.getBoundingClientRect().left;
     let offsetY = touch.clientY - box.getBoundingClientRect().top;
     box.style.cursor = "grabbing";
 
     function onMouseMove(event) {
-      console.log("touch_move");
+      if (!event.touches[0].target.classList.contains("edit-box")) return;
 
       const touch = event.touches[0];
       touch.target.parentElement.style.left = `${touch.clientX - offsetX}px`;
@@ -309,4 +339,37 @@ document.addEventListener("DOMContentLoaded", () => {
   //     requestAnimationFrame(animate);
   //   }
   //   animate();
+  isMasking = masking(mask, isMasking, isAlphabet, calculateB);
+
+  function isAlphabet(char) {
+    // 알파벳 대소문자를 확인하는 정규식
+    const alphabetRegex = /^[A-Za-z]$/;
+
+    // 정규식으로 검사
+    return alphabetRegex.test(char);
+  }
+
+  function masking(mask, isMasking, isAlphabet, calculateB) {
+    mask.classList.add("mask");
+    isMasking = true;
+    const boxes = document.querySelectorAll(".edit-box");
+    boxes.forEach((box) => {
+      box.dataset.origin = box.innerText;
+
+      if (!isAlphabet(box.dataset.origin[0])) {
+        box.style.letterSpacing = `${calculateB(
+          box.style.fontSize.replace("px", "")
+        )}px`;
+      } else {
+        box.style.letterSpacing = `${
+          Number(box.style.letterSpacing.replace("px", "")) * 2
+        }px`;
+      }
+
+      const prevFontSize = box.style.fontSize;
+      box.style.fontSize = `${prevFontSize * 2}px`;
+      box.innerText = box.innerText.replace(/\S/g, "*");
+    });
+    return isMasking;
+  }
 });
